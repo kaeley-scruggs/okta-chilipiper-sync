@@ -2,3 +2,4 @@
 secrets_file.py
 .venv
 CACHEDIR.TAG
+.idea
