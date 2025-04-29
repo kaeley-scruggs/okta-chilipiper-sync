@@ -14,6 +14,11 @@ okta_header = {
     "Authorization": secrets_file.okta_api_key
 }
 
+# confirms (does not return) tenant_id (not needed every time)
+"""def get_cp_tenant_id():
+    tenant_url = secrets_file.ab_cp_url + "/v1/org/tenant/get/getweave"
+    response = requests.get(tenant_url, headers=cp_header)"""
+
 def get_all_chilipiper_users():
     parameters = {
         "pageSize": 100,
@@ -25,6 +30,18 @@ def get_all_chilipiper_users():
     print("response code: " + str(response_code))
     print(data)
 
+def find_cp_user(email):
+    find_cp_url = secrets_file.ab_cp_url + "/v1/getweave/user/find"
+    parameters = {
+        "query": email,
+        "page": 1,
+        "pageSize": 50
+    }
+    response = requests.get(find_cp_url, headers=cp_header, params=parameters)
+    data = json.dumps(response.text, indent=4)
+    print(data)
+
+
 def get_okta_chilipiper_users():
     # Chili Piper Okta App ID in secrets file
     all_assigned_users = []
@@ -35,6 +52,9 @@ def get_okta_chilipiper_users():
     response = requests.get(okta_url, params=parameters, headers=okta_header)
     json_data = response.json()
     for item in json_data:
-        all_cp_users.append(item["credentials"]["userName"])
-    return all_cp_users
-all_cp_users = get_okta_chilipiper_users()
+        all_assigned_users.append(item["credentials"]["userName"])
+    return all_assigned_users
+
+
+# all_cp_users = get_okta_chilipiper_users()
+find_cp_user("kaeley.scruggs@getweave.com")
