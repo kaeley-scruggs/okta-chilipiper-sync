@@ -3,7 +3,7 @@ import json
 import secrets_file
 
 cp_header = {
-    "accept": "*/*",
+    "accept": "application/json",
     "Content-Type": "application/json",
     "Authorization": secrets_file.api_key,
 }
@@ -16,30 +16,54 @@ okta_header = {
 
 # confirms (does not return) tenant_id (not needed every time)
 """def get_cp_tenant_id():
-    tenant_url = secrets_file.ab_cp_url + "/v1/org/tenant/get/getweave"
+    tenant_url = secrets_file.ab_cp_url + "/tenant/get/getweave"
     response = requests.get(tenant_url, headers=cp_header)"""
 
-def get_all_chilipiper_users():
+def cp_health_test():
+    health_url = secrets_file.ab_cp_url + "/health/ping"
+    response = requests.get(health_url, headers=cp_header)
+    print(response)
+
+def get_all_workspaces():
     parameters = {
-        "pageSize": 100,
+        "page": 0,
+        "pageSize": 50,
     }
-    lists_users_url = secrets_file.ab_cp_url + "/users?"
-    response = requests.get(lists_users_url, params=parameters, headers=cp_header)
+    workspace_url = secrets_file.ab_cp_url + "/workspace"
+    response = requests.get(workspace_url, headers=cp_header, params=parameters)
     response_code = response.status_code
-    data = json.dumps(response.text, indent=4)
+    data = response.text
     print("response code: " + str(response_code))
-    print(data)
+    print(json.dumps(data, indent=4))
+
+def get_all_chilipiper_users():
+    cp_workspace_id = "getweave"
+    parameters = {
+        "workspaceId": cp_workspace_id,
+        "page": 0,
+        "pageSize": 50,
+    }
+    lists_users_url = secrets_file.ab_cp_url + "/workspace/users"
+    response = requests.get(lists_users_url, headers=cp_header, params=parameters)
+    response_code = response.status_code
+    data = response.text
+    print("response code: " + str(response_code))
+    print(json.dumps(data, indent=4))
+
+
 
 def find_cp_user(email):
-    find_cp_url = secrets_file.ab_cp_url + "/v1/getweave/user/find"
+    find_cp_url = secrets_file.ab_cp_url + "/user/find"
     parameters = {
         "query": email,
         "page": 1,
         "pageSize": 50
     }
     response = requests.get(find_cp_url, headers=cp_header, params=parameters)
-    data = json.dumps(response.text, indent=4)
-    print(data)
+    print(find_cp_url)
+
+    data = response.json()
+    # print(json.dumps(data, indent=4))
 
 
 def get_okta_chilipiper_users():
@@ -57,4 +81,6 @@ def get_okta_chilipiper_users():
 
 
 # all_cp_users = get_okta_chilipiper_users()
-find_cp_user("kaeley.scruggs@getweave.com")
+# find_cp_user("kaeley.scruggs@getweave.com")
+# get_all_chilipiper_users()
+get_all_workspaces()
